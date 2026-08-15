@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Memory Clearer v2.0 - Web GUI</title>
+<style>
+  :root {
+    --bg-1: #0f172a;
+    --bg-2: #1e293b;
+    --bg-3: #334155;
+    --accent: #22d3ee;
+    --accent-2: #06b6d4;
+    --good: #22c55e;
+    --warn: #eab308;
+    --bad:  #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #475569;
+    --card: #1e293b;
+    --shadow: 0 10px 30px rgba(0,0,0,0.45);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    color: var(--text);
+  }
+
+  /* ---------- Top navigation bar ---------- */
+  .navbar {
+    display: flex;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
+  .brand {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-right: 24px;
+    letter-spacing: 0.4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-icon {
+    font-size: 22px;
+  }
+  .nav-menu {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+  }
+  .nav-item {
+    position: relative;
+  }
+  .nav-btn {
+    background: transparent;
+    color: var(--text);
+    border: none;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-btn:hover { background: var(--bg-3); color: var(--accent); }
+  .nav-item.open .nav-btn { background: var(--bg-3); color: var(--accent); }
+  .caret { font-size: 10px; opacity: 0.7; }
+
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 220px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 6px;
+    display: none;
+    z-index: 200;
+  }
+  .nav-item.open .dropdown { display: block; }
+  .dropdown a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    color: var(--text);
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+  .dropdown a:hover { background: var(--bg-3); color: var(--accent); }
+  .dropdown .sep {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 6px;
+  }
+  .dropdown .icon { width: 18px; text-align: center; opacity: 0.85; }
+
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pill {
+    background: var(--bg-3);
+    color: var(--muted);
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+  }
+  .pill.live { background: var(--good); color: #052e16; font-weight: 600; }
+
+  /* ---------- Layout ---------- */
+  .container {
+    max-width: 1200px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 880px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: var(--shadow);
+  }
+  .card h2 {
+    margin: 0 0 14px 0;
+    font-size: 15px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ---------- Stats ---------- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .stat {
+    background: var(--bg-3);
+    padding: 12px 14px;
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+  .stat .label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+  }
+  .stat .value {
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: 4px;
+    color: var(--text);
+  }
+  .stat .sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .progress-wrap {
+    margin-top: 10px;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: var(--muted);
+  }
+  .progress-bar {
+    width: 100%;
+    height: 14px;
+    background: var(--bg-3);
+    border-radius: 7px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--good);
+    transition: width 0.6s ease, background 0.3s;
+    border-radius: 7px;
+  }
+  .progress-fill.warn { background: var(--warn); }
+  .progress-fill.bad  { background: var(--bad); }
+
+  /* ---------- Buttons ---------- */
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .btn {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.05s, background 0.15s, opacity 0.15s;
+    color: white;
+  }
+  .btn:hover  { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary  { background: var(--accent-2); }
+  .btn-primary:hover { background: var(--accent); color: #052e16; }
+  .btn-warning  { background: var(--warn); color: #1c1917; }
+  .btn-success  { background: var(--good); color: #052e16; }
+  .btn-purple   { background: #a855f7; }
+  .btn-purple:hover { background: #c084fc; }
+
+  /* ---------- Logs ---------- */
+  .log-box {
+    background: #0b1220;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    height: 280px;
+    overflow-y: auto;
+    font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+    font-size: 12.5px;
+    color: #cbd5e1;
+    line-height: 1.55;
+  }
+  .log-entry { white-space: pre-wrap; word-break: break-word; }
+  .log-time  { color: var(--accent); margin-right: 6px; }
+  .log-info  { color: #93c5fd; }
+  .log-good  { color: var(--good); }
+  .log-warn  { color: var(--warn); }
+  .log-bad   { color: var(--bad); }
+
+  .log-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .log-toolbar .left {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ---------- Status footer ---------- */
+  .status {
+    margin-top: 16px;
+    background: var(--bg-3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+  .status .left  { color: var(--text); }
+  .status .right { color: var(--muted); }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin: 24px 0;
+  }
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    max-width: 540px;
+    width: 90%;
+    box-shadow: var(--shadow);
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .modal h3 {
+    margin: 0 0 12px 0;
+    color: var(--accent);
+  }
+  .modal p, .modal li { font-size: 14px; line-height: 1.6; }
+  .modal .close-btn {
+    margin-top: 14px;
+    background: var(--accent-2);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  /* ---------- Task list ---------- */
+  .task-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .task-list li {
+    background: var(--bg-3);
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+  .task-list .name { color: var(--text); }
+  .task-list .meta { color: var(--muted); font-size: 11px; }
+
+  /* ---------- Theme toggle ---------- */
+  .theme-toggle {
+    background: var(--bg-3);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  /* Light theme override */
+  body.light {
+    --bg-1: #f1f5f9;
+    --bg-2: #e2e8f0;
+    --bg-3: #cbd5e1;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #475569;
+    --border: #94a3b8;
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  }
+  body.light .navbar { background: rgba(255,255,255,0.85); }
+  body.light .log-box { background: #f8fafc; color: #0f172a; }
+  body.light .stat   { background: #e2e8f0; }
+</style>
+</head>
+<body class="dark">
+
+<!-- ============ Top Navigation ============ -->
+<nav class="navbar">
+  <div class="brand"><span class="brand-icon">🧹</span> Memory Clearer</div>
+
+  <div class="nav-menu">
+    <!-- Help dropdown -->
+    <div class="nav-item" data-menu="help">
+      <button class="nav-btn">Help <span class="caret">▾</span></button>
+      <div class="dropdown">
+        <a onclick="showModal('help-docs')"><span class="icon">📖</span> Documentation</a>
+        <a onclick="showModal('help-shortcuts')"><span class="icon">⌨️</span> Keyboard Shortcuts</a>
+        <a onclick="showModal('help-faq')"><span class="icon">❓</span> FAQ</a>
+        <div class="sep"></div>
+        <a onclick="showModal('help-troubleshoot')"><span class="icon">🛠️</span> Troubleshooting</a>
+      </div>
+    </div>
+
+    <!-- About dropdown -->
+    <div class="nav-item" data-menu="about">
+      <button class="nav-btn">About <span class="caret">▾</span></button>
+      <div class="dropdown">
+        <a onclick="showModal('about-app')"><span class="icon">ℹ️</span> About App</a>
+        <a onclick="showModal('about-version')"><span class="icon">🏷️</span> Version Info</a>
+        <div class="sep"></div>
+        <a onclick="showModal('about-copyright')"><span class="icon">©️</span> License & Copyright</a>
+        <a onclick="showModal('about-credits')"><span class="icon">🙏</span> Credits</a>
+      </div>
+    </div>
+
+    <!-- View dropdown -->
+    <div class="nav-item" data-menu="view">
+      <button class="nav-btn">View <span class="caret">▾</span></button>
+      <div class="dropdown">
+        <a onclick="setTheme('dark')"><span class="icon">�</span> Dark Theme</a>
+        <a onclick="setTheme('light')"><span class="icon">☀️</span> Light Theme</a>
+        <div class="sep"></div>
+        <a onclick="toggleSection('stats-card')"><span class="icon">�</span> Toggle Stats</a>
+        <a onclick="toggleSection('logs-card')"><span class="icon">📝</span> Toggle Logs</a>
+        <a onclick="clearLog()"><span class="icon">🧽</span> Clear Log View</a>
+      </div>
+    </div>
+
+    <!-- Run dropdown -->
+    <div class="nav-item" data-menu="run">
+      <button class="nav-btn">Run <span class="caret">▾</span></button>
+      <div class="dropdown">
+        <a onclick="runAction('clean')"><span class="icon">🧹</span> Clean Memory Now</a>
+        <a onclick="runAction('deep')"><span class="icon">🔧</span> Deep Clean</a>
+        <a onclick="runAction('gc')"><span class="icon">♻️</span> Force GC</a>
+        <div class="sep"></div>
+        <a onclick="runAction('cleantemp')"><span class="icon">🗑️</span> Clear Temp Files</a>
+        <a onclick="runAction('winsetsize')"><span class="icon">🪟</span> Trim Working Set</a>
+        <a onclick="runAction('emptystandby')"><span class="icon">💤</span> Empty Standby List</a>
+      </div>
+    </div>
+
+    <!-- Task dropdown -->
+    <div class="nav-item" data-menu="task">
+      <button class="nav-btn">Task <span class="caret">▾</span></button>
+      <div class="dropdown">
+        <a onclick="runAction('monitor-start')"><span class="icon">▶️</span> Start Monitoring</a>
+        <a onclick="runAction('monitor-stop')"><span class="icon">⏹️</span> Stop Monitoring</a>
+        <div class="sep"></div>
+        <a onclick="runAction('auto-clean')"><span class="icon">⚡</span> Enable Auto-Clean</a>
+        <a onclick="runAction('auto-clean-off')"><span class="icon">🚫</span> Disable Auto-Clean</a>
+        <div class="sep"></div>
+        <a onclick="showModal('task-list')"><span class="icon">📋</span> Scheduled Tasks</a>
+      </div>
+    </div>
+
+    <!-- More dropdown -->
+    <div class="nav-item" data-menu="more">
+      <button class="nav-btn">More <span class="caret">▾</span></button>
+      <div class="dropdown">
+        <a onclick="runAction('list-procs')"><span class="icon">🧬</span> Top Processes</a>
+        <a onclick="runAction('disk-usage')"><span class="icon">💽</span> Disk Usage</a>
+        <div class="sep"></div>
+        <a onclick="showModal('more-settings')"><span class="icon">⚙️</span> Settings</a>
+        <a onclick="showModal('more-export')"><span class="icon">�</span> Export Logs</a>
+        <a onclick="showModal('more-reset')"><span class="icon">♻️</span> Reset App</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="navbar-right">
+    <span id="livePill" class="pill live">● Live</span>
+    <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+  </div>
+</nav>
+
+<!-- ============ Main Content ============ -->
+<div class="container">
+  <div class="grid">
+
+    <!-- Left column -->
+    <div>
+      <div class="card" id="stats-card">
+        <h2>📊 System Statistics</h2>
+        <div class="stats-row">
+          <div class="stat">
+            <div class="label">Total RAM</div>
+            <div class="value" id="totalRam">-- GB</div>
+          </div>
+          <div class="stat">
+            <div class="label">Used RAM</div>
+            <div class="value" id="usedRam">-- GB</div>
+          </div>
+          <div class="stat">
+            <div class="label">Available RAM</div>
+            <div class="value" id="availRam">-- GB</div>
+          </div>
+          <div class="stat">
+            <div class="label">CPU Usage</div>
+            <div class="value" id="cpuUsage">--%</div>
+            <div class="sub" id="cpuCores">cores: --</div>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Memory Usage</span>
+            <span id="memPercent">--%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="memBar"></div></div>
+        </div>
+      </div>
+
+      <div class="card" id="logs-card" style="margin-top:18px;">
+        <div class="log-toolbar">
+          <div class="left">📝 Activity Log</div>
+          <button class="btn btn-primary" style="padding:6px 12px; font-size:12px;" onclick="clearLog()">Clear Log</button>
+        </div>
+        <div class="log-box" id="logBox"></div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div>
+      <div class="card">
+        <h2>⚡ Quick Actions</h2>
+        <div class="actions">
+          <button class="btn btn-primary" onclick="runAction('clean')">🧹 Clean Memory</button>
+          <button class="btn btn-warning" onclick="runAction('deep')">� Deep Clean</button>
+          <button class="btn btn-success" id="monitorBtn" onclick="runAction('monitor-toggle')">▶ Start Monitoring</button>
+          <button class="btn btn-purple"  id="autoCleanBtn" onclick="runAction('auto-clean-toggle')">⚡ Auto-Clean</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <h2>🧬 Top Memory Processes</h2>
+        <ul class="task-list" id="procList">
+          <li><span class="name">Loading…</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="status">
+    <div class="left" id="statusLeft">Ready</div>
+    <div class="right" id="statusRight">Memory Clearer v2.0 • Web GUI</div>
+  </div>
+
+  <footer>© 2024 Memory Clearer Contributors • MIT License</footer>
+</div>
+
+<!-- ============ Modal ============ -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
+  <div class="modal" id="modalContent" onclick="event.stopPropagation()">
+    <h3 id="modalTitle">Title</h3>
+    <div id="modalBody">Body</div>
+    <button class="close-btn" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<script>
+/* ===========================
+   Dropdown navigation
+   =========================== */
+document.querySelectorAll('.nav-item').forEach(item => {
+  const btn = item.querySelector('.nav-btn');
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+});
+
+/* ===========================
+   Logging helper
+   =========================== */
+const logBox = document.getElementById('logBox');
+function log(message, level = 'info') {
+  const ts = new Date().toLocaleTimeString();
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `<span class="log-time">[${ts}]</span><span class="log-${level}">${escapeHtml(message)}</span>`;
+  logBox.appendChild(entry);
+  logBox.scrollTop = logBox.scrollHeight;
+  document.getElementById('statusLeft').textContent = message;
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function clearLog() {
+  logBox.innerHTML = '';
+  log('Log cleared', 'info');
+}
+
+/* ===========================
+   Backend calls
+   =========================== */
+async function api(path, payload) {
+  try {
+    const res = await fetch(path, {
+      method: payload ? 'POST' : 'GET',
+      headers: {'Content-Type': 'application/json'},
+      body: payload ? JSON.stringify(payload) : undefined
+    });
+    return await res.json();
+  } catch (err) {
+    log('Network error: ' + err.message, 'bad');
+    return {ok: false, error: err.message};
+  }
+}
+
+/* ===========================
+   Theme
+   =========================== */
+function setTheme(t) {
+  document.body.classList.toggle('light', t === 'light');
+  document.body.classList.toggle('dark', t !== 'light');
+  log('Theme switched to ' + t, 'info');
+}
+function toggleTheme() {
+  setTheme(document.body.classList.contains('light') ? 'dark' : 'light');
+}
+function toggleSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = (el.style.display === 'none') ? '' : 'none';
+}
+
+/* ===========================
+   Modals
+   =========================== */
+const modalContent = {
+  'help-docs': {
+    title: '📖 Documentation',
+    body: `<p>Memory Clearer helps you reclaim system memory on Windows by:</p>
+           <ul>
+             <li>Forcing Python garbage collection</li>
+             <li>Trimming the working set of the current process</li>
+             <li>Emptying the Windows standby list (with admin rights)</li>
+             <li>Cleaning temp folders</li>
+             <li>Monitoring memory usage and auto-cleaning at critical levels</li>
+           </ul>
+           <p>Use the <b>Run</b> menu for one-off actions, or <b>Task</b> for scheduled jobs.</p>`
+  },
+  'help-shortcuts': {
+    title: '⌨️ Keyboard Shortcuts',
+    body: `<ul>
+             <li><b>Ctrl + M</b> – Toggle monitoring</li>
+             <li><b>Ctrl + L</b> – Clear log</li>
+             <li><b>Ctrl + R</b> – Refresh stats now</li>
+             <li><b>Esc</b> – Close any open modal/menu</li>
+           </ul>`
+  },
+  'help-faq': {
+    title: '❓ FAQ',
+    body: `<p><b>Q: Do I need administrator rights?</b><br>
+           A: Most features work without admin. Emptying the standby list and trimming system caches requires admin.</p>
+           <p><b>Q: Is it safe to deep-clean?</b><br>
+           A: Yes. It only touches your process working set and Python caches.</p>
+           <p><b>Q: Why is CPU usage reported as 0% sometimes?</b><br>
+           A: psutil samples over a short window; idle cores show 0%.</p>`
+  },
+  'help-troubleshoot': {
+    title: '🛠️ Troubleshooting',
+    body: `<ul>
+             <li><b>GUI won't load</b> – Make sure run.bat finished without errors and that port 8765 is free.</li>
+             <li><b>Python missing</b> – Install Python 3.10+ from python.org with "Add to PATH" ticked.</li>
+             <li><b>psutil error</b> – run.bat installs it automatically. You can also run <code>pip install psutil</code> manually.</li>
+             <li><b>Permission denied for temp folders</b> – Re-run run.bat as administrator.</li>
+           </ul>`
+  },
+  'about-app': {
+    title: 'ℹ️ About Memory Clearer',
+    body: `<p>Memory Clearer v2.0</p>
+           <p>An advanced Windows system memory cleanup and monitoring tool, with a modern web-based interface.</p>
+           <p>Built with Python + a lightweight HTML/JS front-end so the GUI is themeable, responsive, and runs in any browser.</p>`
+  },
+  'about-version': {
+    title: '🏷️ Version Info',
+    body: `<p><b>Version:</b> 2.0.0</p>
+           <p><b>Release:</b> August 15, 2024</p>
+           <p><b>Channel:</b> Web GUI</p>
+           <p><b>Python target:</b> 3.10+</p>`
+  },
+  'about-copyright': {
+    title: '©️ License & Copyright',
+    body: `<p>Copyright © 2024 Memory Clearer Contributors</p>
+           <p>Licensed under the <b>MIT License</b>.</p>
+           <p>You may use, modify, and redistribute this software commercially, provided the copyright notice and license are preserved.</p>`
+  },
+  'about-credits': {
+    title: '🙏 Credits',
+    body: `<ul>
+             <li><b>psutil</b> – cross-platform process and memory utilities</li>
+             <li><b>Python http.server</b> – zero-dependency local web server</li>
+             <li><b>tkinter inspiration</b> – original desktop UI</li>
+           </ul>`
+  },
+  'more-settings': {
+    title: '⚙️ Settings',
+    body: `<p>Settings are saved per-launch and reset when you restart.</p>
+           <ul>
+             <li><b>Auto-clean threshold:</b> 85% memory usage</li>
+             <li><b>Critical threshold:</b> 95% (triggers immediate clean)</li>
+             <li><b>Monitor interval:</b> 5 seconds</li>
+             <li><b>Auto-clean interval:</b> 30 minutes</li>
+           </ul>`
+  },
+  'more-export': {
+    title: '📤 Export Logs',
+    body: `<p>To export the activity log, open the browser console and run:</p>
+           <pre style="background:#0b1220;padding:10px;border-radius:6px;color:#cbd5e1;">copy(document.getElementById('logBox').innerText)</pre>
+           <p>Then paste into any text file.</p>`
+  },
+  'more-reset': {
+    title: '♻️ Reset App',
+    body: `<p>Resetting will stop monitoring, disable auto-clean, and clear the log.</p>
+           <button class="btn btn-warning" onclick="resetApp()">Yes, reset everything</button>`
+  },
+  'task-list': {
+    title: '📋 Scheduled Tasks',
+    body: `<p>Active background tasks in this session:</p>
+           <ul class="task-list" id="taskListModal">
+             <li><span class="name">Loading…</span></li>
+           </ul>`
+  }
+};
+function showModal(key) {
+  const m = modalContent[key];
+  if (!m) return;
+  document.getElementById('modalTitle').textContent = m.title;
+  document.getElementById('modalBody').innerHTML = m.body;
+  document.getElementById('modalBackdrop').classList.add('open');
+  if (key === 'task-list') refreshTaskList();
+}
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('modalBackdrop').classList.remove('open');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+    closeModal();
+  }
+  if (e.ctrlKey && e.key.toLowerCase() === 'l') { e.preventDefault(); clearLog(); }
+  if (e.ctrlKey && e.key.toLowerCase() === 'm') { e.preventDefault(); runAction('monitor-toggle'); }
+  if (e.ctrlKey && e.key.toLowerCase() === 'r') { e.preventDefault(); refreshStats(); }
+});
+
+/* ===========================
+   Run / Task actions
+   =========================== */
+async function runAction(name) {
+  log('Action requested: ' + name, 'info');
+  const r = await api('/api/action', {action: name});
+  if (r && r.ok) {
+    (r.messages || []).forEach(m => log(m.text, m.level || 'info'));
+    if (r.state) updateButtonsFromState(r.state);
+  } else if (r && r.error) {
+    log('Error: ' + r.error, 'bad');
+  }
+}
+function updateButtonsFromState(s) {
+  const mb = document.getElementById('monitorBtn');
+  const ab = document.getElementById('autoCleanBtn');
+  if (mb) mb.innerHTML = s.monitoring ? '⏹ Stop Monitoring' : '▶ Start Monitoring';
+  if (ab) ab.innerHTML = s.auto_clean ? '⏳ Auto-Clean Active' : '⚡ Auto-Clean';
+}
+
+/* ===========================
+   Stats refresh
+   =========================== */
+async function refreshStats() {
+  const r = await api('/api/stats');
+  if (!r || !r.ok) return;
+  document.getElementById('totalRam').textContent  = r.total_ram_gb.toFixed(2) + ' GB';
+  document.getElementById('usedRam').textContent   = r.used_ram_gb.toFixed(2)  + ' GB';
+  document.getElementById('availRam').textContent  = r.avail_ram_gb.toFixed(2) + ' GB';
+  document.getElementById('cpuUsage').textContent  = r.cpu_percent.toFixed(0) + '%';
+  document.getElementById('cpuCores').textContent  = 'cores: ' + r.cpu_cores;
+  document.getElementById('memPercent').textContent= r.mem_percent.toFixed(0) + '%';
+
+  const bar = document.getElementById('memBar');
+  bar.style.width = r.mem_percent + '%';
+  bar.classList.remove('warn', 'bad');
+  if (r.mem_percent > 80) bar.classList.add('bad');
+  else if (r.mem_percent > 60) bar.classList.add('warn');
+
+  // Process list
+  const pl = document.getElementById('procList');
+  pl.innerHTML = '';
+  (r.top_procs || []).forEach(p => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="name">${escapeHtml(p.name)}</span>
+                    <span class="meta">${p.mem_mb.toFixed(0)} MB • pid ${p.pid}</span>`;
+    pl.appendChild(li);
+  });
+}
+
+/* ===========================
+   Reset
+   =========================== */
+async function resetApp() {
+  await runAction('monitor-stop');
+  await runAction('auto-clean-off');
+  clearLog();
+  log('App reset complete', 'good');
+  closeModal();
+}
+
+/* ===========================
+   Scheduled tasks list
+   =========================== */
+async function refreshTaskList() {
+  const r = await api('/api/state');
+  const ul = document.getElementById('taskListModal');
+  if (!r || !r.ok) return;
+  const items = [];
+  if (r.state.monitoring) items.push(['Memory monitoring', 'every 5 s']);
+  if (r.state.auto_clean) items.push(['Auto-clean', 'every 30 min']);
+  ul.innerHTML = items.length === 0
+    ? '<li><span class="name" style="color:var(--muted)">No background tasks running</span></li>'
+    : items.map(([n, m]) => `<li><span class="name">${n}</span><span class="meta">${m}</span></li>`).join('');
+}
+
+/* ===========================
+   Subscribe to toolbar events (SSE)
+   =========================== */
+function handleEvent(name) {
+  if (name === 'view-dark')            setTheme('dark');
+  else if (name === 'view-light')       setTheme('light');
+  else if (name === 'view-toggle-stats') toggleSection('stats-card');
+  else if (name === 'view-toggle-logs')  toggleSection('logs-card');
+  else if (name === 'view-clear-log')    clearLog();
+  else if (name === 'more-settings')     showModal('more-settings');
+  else if (name === 'more-export')       showModal('more-export');
+  else if (name === 'more-reset')        showModal('more-reset');
+}
+function subscribeToolbar() {
+  try {
+    const es = new EventSource('/api/events');
+    es.onmessage = e => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg && msg.event) handleEvent(msg.event);
+      } catch (_) {}
+    };
+    es.onerror = () => {
+      es.close();
+      setTimeout(subscribeToolbar, 3000);
+    };
+  } catch (e) {
+    setTimeout(subscribeToolbar, 3000);
+  }
+}
+subscribeToolbar();
+
+/* ===========================
+   Boot
+   =========================== */
+log('Memory Clearer web GUI loaded', 'good');
+refreshStats();
+setInterval(refreshStats, 2000);
+
+// Heartbeat to keep the live pill honest
+setInterval(async () => {
+  const r = await api('/api/ping');
+  const pill = document.getElementById('livePill');
+  if (r && r.ok) {
+    pill.textContent = '● Live';
+    pill.classList.add('live');
+  } else {
+    pill.textContent = '● Offline';
+    pill.classList.remove('live');
+  }
+}, 4000);
+</script>
+</body>
+</html>

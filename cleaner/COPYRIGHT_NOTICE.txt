@@ -1,0 +1,54 @@
+COPYRIGHT PROTECTION NOTICE
+==============================================================================
+
+This folder contains Memory Clearer v2.0 - Official Distribution
+
+COPYRIGHT & LICENSING:
+- Copyright © 2026 Memory Clearer Contributors
+- Licensed under MIT License
+- Original Repository: [INSERT OFFICIAL REPO URL]
+
+OFFICIAL INSTALLATION:
+- ✅ Cloned from official GitHub repository
+- ✅ Downloaded from official website
+- ✅ Installed via official package manager (pip)
+
+UNAUTHORIZED COPY DETECTION:
+- ⚠️ This folder appears to be from an unauthorized source
+- ⚠️ Not cloned from official repository
+- ⚠️ Missing official verification markers
+
+IF YOU ARE SEEING THIS WARNING:
+1. This may be a copied or modified version
+2. It may not include the latest security updates
+3. It may have unauthorized modifications
+4. It may violate the MIT License terms
+
+RECOMMENDED ACTION:
+- Delete this folder
+- Download from official source: [INSERT OFFICIAL URL]
+- Clone from official GitHub repository
+- Install via pip: pip install memory-clearer
+
+LICENSE TERMS:
+The MIT License allows:
+✅ Free use and redistribution
+✅ Modification for personal/commercial use
+✅ Use from any source (official or not)
+
+BUT REQUIRES:
+⚠️ Inclusion of this copyright notice
+⚠️ Inclusion of LICENSE file
+⚠️ Proper attribution to original authors
+
+BY USING THIS SOFTWARE:
+You acknowledge that you have:
+- Read this copyright notice
+- Understood the MIT License terms
+- Accepted all terms and conditions
+- Take responsibility for your use
+
+For official version and support, visit:
+[INSERT OFFICIAL REPO URL]
+
+==============================================================================
