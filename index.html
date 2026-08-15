@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Memory Clearer v2.0 - Official Website</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #22d3ee; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ===== HEADER / NAV ===== */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #334155;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #22d3ee;
+        }
+
+        .logo-icon { font-size: 28px; }
+
+        nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        nav a:hover {
+            background: #1e293b;
+            color: #22d3ee;
+        }
+
+        nav a.active {
+            background: #22d3ee;
+            color: #0f172a;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #22d3ee, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #94a3b8;
+            max-width: 640px;
+            margin: 16px auto 32px;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            background: #1e293b;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+
+        .badge.green { color: #22c55e; border-color: #22c55e; }
+        .badge.blue { color: #22d3ee; border-color: #22d3ee; }
+        .badge.orange { color: #eab308; border-color: #eab308; }
+
+        /* ===== BUTTONS ===== */
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: #22d3ee;
+            color: #0f172a;
+        }
+        .btn-primary:hover {
+            background: #06b6d4;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+        }
+        .btn-secondary:hover {
+            background: #334155;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: #0f172a;
+        }
+        .btn-success:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #475569;
+        }
+        .btn-outline:hover {
+            border-color: #22d3ee;
+            color: #22d3ee;
+        }
+
+        /* ===== FEATURES GRID ===== */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .feature-card {
+            background: #1e293b;
+            padding: 24px 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            transition: 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: #22d3ee;
+            transform: translateY(-4px);
+        }
+
+        .feature-card .icon { font-size: 32px; margin-bottom: 10px; }
+        .feature-card h3 { color: #22d3ee; font-size: 18px; margin-bottom: 8px; }
+        .feature-card p { color: #94a3b8; font-size: 14px; }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            margin: 50px 0;
+        }
+
+        .section h2 {
+            font-size: 28px;
+            color: #22d3ee;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section p {
+            color: #94a3b8;
+            max-width: 800px;
+        }
+
+        .divider {
+            border: none;
+            height: 1px;
+            background: #334155;
+            margin: 40px 0;
+        }
+
+        /* ===== DOWNLOAD CARDS ===== */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .download-card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .download-card:hover {
+            border-color: #22d3ee;
+            transform: translateY(-3px);
+        }
+
+        .download-card .icon { font-size: 36px; }
+        .download-card h4 { color: #e2e8f0; margin: 8px 0; }
+        .download-card p { color: #94a3b8; font-size: 13px; }
+        .download-card .btn { margin-top: 12px; font-size: 14px; padding: 8px 20px; }
+
+        /* ===== STATS ===== */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        .stat-box .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #22d3ee;
+        }
+        .stat-box .label {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            border-top: 1px solid #334155;
+            padding: 30px 0 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        footer .links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        footer .links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        footer .links a:hover { color: #22d3ee; }
+
+        footer .copy {
+            color: #475569;
+            font-size: 13px;
+        }
+
+        footer .copy span { color: #22d3ee; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 32px; }
+            header { flex-direction: column; align-items: stretch; text-align: center; }
+            nav { justify-content: center; }
+            .section h2 { font-size: 22px; }
+            .btn { font-size: 14px; padding: 10px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ===== HEADER ===== -->
+        <header>
+            <div class="logo">
+                <span class="logo-icon">🧹</span>
+                Memory Clearer
+            </div>
+            <nav>
+                <a href="#" class="active">Home</a>
+                <a href="#features">Features</a>
+                <a href="#download">Download</a>
+                <a href="rules.html">Rules</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="terms.html">Terms</a>
+            </nav>
+        </header>
+
+        <!-- ===== HERO ===== -->
+        <section class="hero">
+            <div class="badges">
+                <span class="badge green">● v2.0</span>
+                <span class="badge blue">● MIT License</span>
+                <span class="badge orange">● 100% Free</span>
+            </div>
+            <h1>Memory Clearer</h1>
+            <p>
+                The ultimate memory management tool for Windows developers &amp; power users.
+                Prevent crashes, black screens, and performance issues — completely free.
+            </p>
+            <div class="btn-group">
+                <a href="#download" class="btn btn-primary">⬇ Download Now</a>
+                <a href="rules.html" class="btn btn-secondary">📖 Read Rules</a>
+                <a href="https://github.com/yourusername/memory-clearer" class="btn btn-outline">🐙 GitHub</a>
+            </div>
+        </section>
+
+        <!-- ===== STATS ===== -->
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="number">2.0</div>
+                <div class="label">Version</div>
+            </div>
+            <div class="stat-box">
+                <div class="number">100%</div>
+                <div class="label">Free &amp; Open Source</div>
+            </div>
+            <div class="stat-box">
+                <div class="number">0</div>
+                <div class="label">Data Collection</div>
+            </div>
+            <div class="stat-box">
+                <div class="number">✔</div>
+                <div class="label">GDPR / CCPA Compliant</div>
+            </div>
+        </div>
+
+        <!-- ===== FEATURES ===== -->
+        <section id="features" class="section">
+            <h2>🚀 Key Features</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="icon">🧹</div>
+                    <h3>Quick Clean</h3>
+                    <p>One-click memory cleanup — removes temp files and cache instantly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🔧</div>
+                    <h3>Deep Clean</h3>
+                    <p>Thorough system optimization for maximum memory recovery.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📊</div>
+                    <h3>Real-Time Monitor</h3>
+                    <p>Live memory usage tracking with visual progress indicators.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🤖</div>
+                    <h3>Auto-Clean</h3>
+                    <p>Automatic cleanup when memory exceeds 85% usage.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🛡️</div>
+                    <h3>Safe Mode</h3>
+                    <p>Protects system-critical files — enabled by default.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">💻</div>
+                    <h3>Web GUI</h3>
+                    <p>Modern browser-based interface + native toolbar.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="divider" />
+
+        <!-- ===== DOWNLOAD ===== -->
+        <section id="download" class="section">
+            <h2>⬇ Download</h2>
+            <p>Get the latest version of Memory Clearer for your platform.</p>
+
+            <div class="download-grid" style="margin-top:20px;">
+                <div class="download-card">
+                    <div class="icon">🪟</div>
+                    <h4>Windows</h4>
+                    <p>run.bat installer</p>
+                    <a href="#" class="btn btn-primary" style="font-size:13px;">Download .zip</a>
+                </div>
+                <div class="download-card">
+                    <div class="icon">🐧</div>
+                    <h4>Linux</h4>
+                    <p>Python 3.6+ required</p>
+                    <a href="#" class="btn btn-primary" style="font-size:13px;">Download .tar.gz</a>
+                </div>
+                <div class="download-card">
+                    <div class="icon">🍎</div>
+                    <h4>macOS</h4>
+                    <p>Python 3.6+ required</p>
+                    <a href="#" class="btn btn-primary" style="font-size:13px;">Download .tar.gz</a>
+                </div>
+                <div class="download-card">
+                    <div class="icon">🐙</div>
+                    <h4>Source Code</h4>
+                    <p>GitHub Repository</p>
+                    <a href="https://github.com/yourusername/memory-clearer" class="btn btn-secondary" style="font-size:13px;">View on GitHub</a>
+                </div>
+            </div>
+
+            <div style="margin-top:20px; background:#1e293b; border-radius:12px; padding:20px; border:1px solid #334155;">
+                <h4 style="color:#22d3ee; margin-bottom:8px;">📦 Installation</h4>
+                <pre style="background:#0f172a; padding:14px; border-radius:8px; color:#94a3b8; overflow-x:auto; font-size:13px; border:1px solid #1e293b;">
+# Clone the repository
+git clone https://github.com/yourusername/memory-clearer.git
+cd memory-clearer
+
+# Windows
+run.bat
+
+# Linux / macOS
+python3 setup_memory_clearer.py
+pip3 install -r requirements.txt
+python3 server.py
+                </pre>
+            </div>
+        </section>
+
+        <hr class="divider" />
+
+        <!-- ===== RULES / TERMS / PRIVACY (COMING SOON) ===== -->
+        <section id="legal" class="section">
+            <h2>📜 Legal &amp; Policies</h2>
+            <p>Memory Clearer is 100% private, open-source, and compliant with all major privacy regulations.</p>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:16px; margin-top:20px;">
+
+                <div style="background:#1e293b; padding:18px; border-radius:12px; border:1px solid #334155; text-align:center;">
+                    <div style="font-size:32px;">⚖️</div>
+                    <h4 style="color:#22d3ee; margin:8px 0;">Terms of Service</h4>
+                    <p style="color:#94a3b8; font-size:13px;">MIT License — Free to use, modify, distribute</p>
+                    <a href="terms.html" style="color:#22d3ee; text-decoration:none; font-size:14px;">Read Full Terms →</a>
+                </div>
+
+                <div style="background:#1e293b; padding:18px; border-radius:12px; border:1px solid #334155; text-align:center;">
+                    <div style="font-size:32px;">🔒</div>
+                    <h4 style="color:#22d3ee; margin:8px 0;">Privacy Policy</h4>
+                    <p style="color:#94a3b8; font-size:13px;">Zero data collection — all local storage</p>
+                    <a href="privacy.html" style="color:#22d3ee; text-decoration:none; font-size:14px;">Read Full Policy →</a>
+                </div>
+
+                <div style="background:#1e293b; padding:18px; border-radius:12px; border:1px solid #334155; text-align:center;">
+                    <div style="font-size:32px;">📋</div>
+                    <h4 style="color:#22d3ee; margin:8px 0;">Usage Rules</h4>
+                    <p style="color:#94a3b8; font-size:13px;">Safe Mode, guidelines &amp; best practices</p>
+                    <a href="rules.html" style="color:#22d3ee; text-decoration:none; font-size:14px;">Read Full Rules →</a>
+                </div>
+
+                <div style="background:#1e293b; padding:18px; border-radius:12px; border:1px solid #334155; text-align:center;">
+                    <div style="font-size:32px;">🛡️</div>
+                    <h4 style="color:#22d3ee; margin:8px 0;">Anti-Piracy</h4>
+                    <p style="color:#94a3b8; font-size:13px;">Copyright protection &amp; enforcement</p>
+                    <a href="anti-piracy.html" style="color:#22d3ee; text-decoration:none; font-size:14px;">Read Full Policy →</a>
+                </div>
+
+            </div>
+        </section>
+
+        <hr class="divider" />
+
+        <!-- ===== FOOTER ===== -->
+        <footer>
+            <div class="links">
+                <a href="#">Home</a>
+                <a href="#features">Features</a>
+                <a href="#download">Download</a>
+                <a href="rules.html">Rules</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="terms.html">Terms</a>
+                <a href="https://github.com/yourusername/memory-clearer">GitHub</a>
+            </div>
+            <div class="copy">
+                © 2024-2026 <span>Memory Clearer Contributors</span> &bull; MIT License &bull;
+                Made with ❤️ for developers everywhere
+            </div>
+        </footer>
+
+    </div>
+
+</body>
+</html>
